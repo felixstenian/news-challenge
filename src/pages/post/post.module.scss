@@ -1,1 +1,41 @@
-// TODO
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.banner {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+
+  img {
+    width: 100%;
+  }
+}
+
+.body {
+  max-width: 720px;
+  padding: 2rem 0;
+  margin: 0 auto;
+}
+
+.infos {
+  display: flex;
+  margin-top: 1rem;
+
+  div {
+    margin-right: 1rem;
+    display: flex;
+    align-items: center;
+
+    time {
+      font-size: 14px;
+      align-items: center;
+      color: var(--info);
+    }
+
+    svg {
+      margin-right: 0.5rem;
+    }
+  }
+}
