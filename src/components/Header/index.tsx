@@ -1,11 +1,14 @@
+import Link from 'next/link';
 import styles from './header.module.scss';
 
 const Header = () => {
   return (
     <header className={styles.headerContainer}>
-      <div>
-        <img src="/Logo.svg" alt="logo" />
-      </div>
+      <Link href="/">
+        <div>
+          <img src="/Logo.svg" alt="logo" />
+        </div>
+      </Link>
     </header>
   );
 };
