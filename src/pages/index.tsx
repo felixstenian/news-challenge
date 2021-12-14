@@ -1,9 +1,11 @@
+import { useEffect, useState } from 'react';
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import Prismic from '@prismicio/client';
 import Link from 'next/link';
 import { FiCalendar, FiUser } from 'react-icons/fi';
 import { getPrismicClient } from '../services/prismic';
+import { formatDate } from '../helpers/date';
 
 // import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
@@ -29,6 +31,28 @@ interface HomeProps {
 
 const Home = (props: HomeProps) => {
   const { results, next_page } = props;
+  const [posts, setPosts] = useState(results);
+  const [nextPage, setNextPage] = useState(next_page);
+
+  const pagination = nextPage => {
+    fetch(nextPage)
+      .then(response => response.json())
+      .then(data => {
+        const results = data.results.map(post => {
+          return {
+            uid: post.uid,
+            first_publication_date: formatDate(post.last_publication_date),
+            data: {
+              title: post?.data?.title,
+              subtitle: post?.data?.subtitle,
+              author: post?.data?.author,
+            },
+          };
+        });
+        setNextPage(data.next_page);
+        setPosts([...posts, ...results]);
+      });
+  };
 
   return (
     <>
@@ -40,10 +64,10 @@ const Home = (props: HomeProps) => {
       </header>
       <main className={styles.container}>
         <div className={styles.postList}>
-          {results?.map(post => (
+          {posts?.map(post => (
             <Link key={post.uid} href={`/post/${post.uid}`}>
               <a>
-                <strong>{post.data.title}</strong>
+                <strong>{post?.data?.title}</strong>
                 <p>{post.data.subtitle}</p>
                 <div className={styles.infos}>
                   <div>
@@ -58,9 +82,11 @@ const Home = (props: HomeProps) => {
               </a>
             </Link>
           ))}
-          <button type="button" onClick={() => console.log('mais')}>
-            Carregar mais posts
-          </button>
+          {!!nextPage && (
+            <button type="button" onClick={() => pagination(nextPage)}>
+              Carregar mais posts
+            </button>
+          )}
         </div>
       </main>
     </>
@@ -85,13 +111,7 @@ export const getStaticProps: GetStaticProps = async () => {
   const results = response.results.map(post => {
     return {
       uid: post.uid,
-      first_publication_date: new Date(
-        post.last_publication_date
-      ).toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-      }),
+      first_publication_date: formatDate(post.last_publication_date),
       data: {
         title: post?.data?.title,
         subtitle: post?.data?.subtitle,
@@ -99,7 +119,6 @@ export const getStaticProps: GetStaticProps = async () => {
       },
     };
   });
-  // TODO
 
   return {
     props: {
