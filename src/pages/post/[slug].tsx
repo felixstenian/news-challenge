@@ -4,7 +4,7 @@ import Head from 'next/head';
 import RichText from 'prismic-dom';
 import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
 import { getPrismicClient } from '../../services/prismic';
-
+import { formatDate } from '../../helpers/date';
 // import commonStyles from '../../styles/common.module.scss';
 import Header from '../../components/Header';
 
@@ -84,13 +84,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const response = await prismic.getByUID('publication', String(slug), {});
 
   const post = {
-    first_publication_date: new Date(
-      response.last_publication_date
-    ).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    }),
+    first_publication_date: formatDate(response.last_publication_date),
     data: {
       title: response?.data?.title,
       banner: {
