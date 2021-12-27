@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import Prismic from '@prismicio/client';
@@ -7,7 +7,6 @@ import { FiCalendar, FiUser } from 'react-icons/fi';
 import { getPrismicClient } from '../services/prismic';
 import { formatDate } from '../helpers/date';
 
-// import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
 
 interface Post {
@@ -29,8 +28,8 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-const Home = (props: HomeProps) => {
-  const { results, next_page } = props;
+const Home = ({ postsPagination }: HomeProps) => {
+  const { results, next_page } = postsPagination;
   const [posts, setPosts] = useState(results);
   const [nextPage, setNextPage] = useState(next_page);
 
@@ -38,10 +37,10 @@ const Home = (props: HomeProps) => {
     fetch(nextPage)
       .then(response => response.json())
       .then(data => {
-        const results = data.results.map(post => {
+        const newPost = data.results.map(post => {
           return {
             uid: post.uid,
-            first_publication_date: formatDate(post.last_publication_date),
+            first_publication_date: post.first_publication_date,
             data: {
               title: post?.data?.title,
               subtitle: post?.data?.subtitle,
@@ -50,7 +49,7 @@ const Home = (props: HomeProps) => {
           };
         });
         setNextPage(data.next_page);
-        setPosts([...posts, ...results]);
+        setPosts([...posts, ...newPost]);
       });
   };
 
@@ -72,7 +71,7 @@ const Home = (props: HomeProps) => {
                 <div className={styles.infos}>
                   <div>
                     <FiCalendar />
-                    <time>{post.first_publication_date}</time>
+                    <time>{formatDate(post.first_publication_date)}</time>
                   </div>
                   <div>
                     <FiUser />
@@ -111,7 +110,7 @@ export const getStaticProps: GetStaticProps = async () => {
   const results = response.results.map(post => {
     return {
       uid: post.uid,
-      first_publication_date: formatDate(post.last_publication_date),
+      first_publication_date: post.first_publication_date,
       data: {
         title: post?.data?.title,
         subtitle: post?.data?.subtitle,
@@ -122,9 +121,12 @@ export const getStaticProps: GetStaticProps = async () => {
 
   return {
     props: {
-      results,
-      next_page: response.next_page,
+      postsPagination: {
+        results,
+        next_page: response.next_page,
+      },
     },
+    revalidate: 60 * 30, // 30 minutes
   };
 };
 
