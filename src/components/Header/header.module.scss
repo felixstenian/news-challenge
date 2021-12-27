@@ -1,6 +1,10 @@
 .headerContainer {
   height: 5rem;
 
+  img {
+    cursor: pointer;
+  }
+
   div {
     max-width: 1120px;
     height: 5rem;
