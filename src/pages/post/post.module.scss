@@ -1,6 +1,7 @@
 .container {
   max-width: 1120px;
   margin: 0 auto;
+  padding: 0 2rem;
 }
 
 .banner {
@@ -17,11 +18,22 @@
   max-width: 720px;
   padding: 2rem 0;
   margin: 0 auto;
+
+  h1 {
+    font-size: 48px;
+    font-weight: bold;
+    line-height: 58px;
+    letter-spacing: -0.5px;
+    color: var(--heading)
+  }
 }
 
 .infos {
   display: flex;
   margin-top: 1rem;
+  font-size: 14px;
+  line-height: 17px;
+  color: var(--info);
 
   div {
     margin-right: 1rem;
@@ -29,13 +41,33 @@
     align-items: center;
 
     time {
-      font-size: 14px;
       align-items: center;
-      color: var(--info);
     }
 
     svg {
       margin-right: 0.5rem;
+    }
+  }
+}
+
+.postContent {
+  margin-top: 60px;
+  line-height: 2rem;
+  font-size: 1.125rem;
+
+  h2, h3 {
+    margin-top: 2rem;
+  }
+
+  p, ul {
+    margin: 0.8rem 0;
+  }
+
+  ul {
+    padding-left: 1.5rem;
+
+    li {
+      margin: 0.3rem 0.9rem;
     }
   }
 }
