@@ -20,6 +20,13 @@
     letter-spacing: -0.5px;
     color: var(--heading)
   }
+
+  span {
+    font-size: 14px;
+    line-height: 17px;
+    color: var(--info);
+    font-style: italic;
+  }
 }
 
 .postContent {

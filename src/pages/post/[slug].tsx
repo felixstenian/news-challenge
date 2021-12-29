@@ -6,7 +6,7 @@ import { RichText } from 'prismic-dom';
 import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
 import Link from 'next/link';
 import { getPrismicClient } from '../../services/prismic';
-import { formatDate } from '../../helpers/date';
+import { formatDate, formatTeste } from '../../helpers/date';
 import Header from '../../components/Header';
 
 import styles from './post.module.scss';
@@ -16,6 +16,7 @@ import Comments from '../../components/Comments';
 interface Post {
   uid: string | null;
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     banner: {
@@ -49,6 +50,9 @@ const Post = ({ post, prevPost, nextPost, preview }: PostProps) => {
     return acc + min;
   }, 0);
 
+  const isEditedPost =
+    post.first_publication_date !== post.last_publication_date;
+
   return (
     <>
       <Head>
@@ -75,6 +79,9 @@ const Post = ({ post, prevPost, nextPost, preview }: PostProps) => {
               <time>{readingTime} min</time>
             </div>
           </article>
+          {!!isEditedPost && (
+            <span>*editado em {formatTeste(post.last_publication_date)}</span>
+          )}
 
           <div className={styles.postContent}>
             {post?.data?.content.map(content => (
@@ -98,7 +105,7 @@ const Post = ({ post, prevPost, nextPost, preview }: PostProps) => {
             <aside>
               <p>{nextPost.data.title}</p>
               {nextPost.uid && (
-                <Link href={`/post/${nextPost.uid}`}>Próximo Anterior</Link>
+                <Link href={`/post/${nextPost.uid}`}>Próximo Post</Link>
               )}
             </aside>
           </div>
@@ -145,6 +152,7 @@ export const getStaticProps: GetStaticProps = async ({
   const post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
+    last_publication_date: response.last_publication_date,
     data: {
       ...response.data,
     },
