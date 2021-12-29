@@ -11,8 +11,10 @@ import Header from '../../components/Header';
 
 import styles from './post.module.scss';
 import commonStyles from '../../styles/common.module.scss';
+import Comments from '../../components/Comments';
 
 interface Post {
+  uid: string | null;
   first_publication_date: string | null;
   data: {
     title: string;
@@ -31,9 +33,9 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  preview: boolean;
   prevPost: Post;
   nextPost: Post;
-  preview: boolean;
 }
 
 const Post = ({ post, prevPost, nextPost, preview }: PostProps) => {
@@ -86,6 +88,21 @@ const Post = ({ post, prevPost, nextPost, preview }: PostProps) => {
               </section>
             ))}
           </div>
+          <div className={styles.navigation}>
+            <aside>
+              <p>{prevPost.data.title}</p>
+              {prevPost.uid && (
+                <Link href={`/post/${prevPost.uid}`}>Post Anterior</Link>
+              )}
+            </aside>
+            <aside>
+              <p>{nextPost.data.title}</p>
+              {nextPost.uid && (
+                <Link href={`/post/${nextPost.uid}`}>Próximo Anterior</Link>
+              )}
+            </aside>
+          </div>
+          <Comments />
           {preview && (
             <aside>
               <Link href="/api/exit-preview">
@@ -102,7 +119,6 @@ const Post = ({ post, prevPost, nextPost, preview }: PostProps) => {
 export const getStaticPaths: GetStaticPaths = async () => {
   const prismic = getPrismicClient();
   const posts = await prismic.query(Prismic.predicates.at['type.publication']);
-
   const paths = posts.results.map(post => {
     return {
       params: { slug: post.uid },
@@ -134,10 +150,44 @@ export const getStaticProps: GetStaticProps = async ({
     },
   };
 
+  const resPrevPost = await prismic.query(
+    [Prismic.predicates.at('document.type', 'publication')],
+    {
+      pageSize: 1,
+      after: response.id,
+      orderings: '[document.first_publication_date]',
+    }
+  );
+
+  const prevPost = {
+    uid: resPrevPost?.results[0]?.uid ?? null,
+    data: {
+      title: resPrevPost?.results[0]?.data.title ?? null,
+    },
+  };
+
+  const resNextPost = await prismic.query(
+    [Prismic.predicates.at('document.type', 'publication')],
+    {
+      pageSize: 1,
+      after: response.id,
+      orderings: '[document.first_publication_date desc]',
+    }
+  );
+
+  const nextPost = {
+    uid: resNextPost?.results[0]?.uid ?? null,
+    data: {
+      title: resNextPost?.results[0]?.data.title ?? null,
+    },
+  };
+
   return {
     props: {
       post,
       preview,
+      prevPost,
+      nextPost,
     },
     revalidate: 60 * 30, // 30 minutes
   };

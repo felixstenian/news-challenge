@@ -115,7 +115,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async ({
         'publication.subtitle',
         'publication.author',
       ],
-      orderings: '[my.publication.first_publication_date]',
+      orderings: '[document.first_publication_date desc]',
       pageSize: 3,
       ref: previewData?.ref ?? null,
     }
