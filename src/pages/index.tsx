@@ -8,6 +8,7 @@ import { getPrismicClient } from '../services/prismic';
 import { formatDate } from '../helpers/date';
 
 import styles from './home.module.scss';
+import commonStyles from '../styles/common.module.scss';
 
 interface Post {
   uid?: string;
@@ -26,16 +27,15 @@ interface PostPagination {
 
 interface HomeProps {
   postsPagination: PostPagination;
-  previewRef: boolean;
+  preview: boolean;
 }
 
-const Home = ({ postsPagination, previewRef }: HomeProps) => {
+const Home = ({ postsPagination, preview }: HomeProps) => {
   const { results, next_page } = postsPagination;
   const [posts, setPosts] = useState<Post[]>(results);
-  const [nextPage, setNextPage] = useState(next_page);
-  console.log(previewRef);
+  const [nextPage, setNextPage] = useState<string>(next_page);
 
-  const pagination = nextPage => {
+  const pagination = (): void => {
     fetch(nextPage)
       .then(response => response.json())
       .then(data => {
@@ -63,14 +63,14 @@ const Home = ({ postsPagination, previewRef }: HomeProps) => {
       <header className={styles.headerContainer}>
         <img src="/Logo.svg" alt="logo" />
       </header>
-      <main className={styles.container}>
+      <main className={commonStyles.container}>
         <div className={styles.postList}>
           {posts?.map(post => (
             <Link key={post.uid} href={`/post/${post.uid}`}>
-              <a>
+              <aside>
                 <strong>{post?.data?.title}</strong>
                 <p>{post.data.subtitle}</p>
-                <div className={styles.infos}>
+                <div className={commonStyles.infos}>
                   <div>
                     <FiCalendar />
                     <time>{formatDate(post.first_publication_date)}</time>
@@ -80,18 +80,18 @@ const Home = ({ postsPagination, previewRef }: HomeProps) => {
                     <time>{post.data.author}</time>
                   </div>
                 </div>
-              </a>
+              </aside>
             </Link>
           ))}
           {!!nextPage && (
-            <button type="button" onClick={() => pagination(nextPage)}>
+            <button type="button" onClick={pagination}>
               Carregar mais posts
             </button>
           )}
-          {!!previewRef && (
+          {!!preview && (
             <aside>
               <Link href="/api/exit-preview">
-                <a className={styles.preview}>Sair do modo Preview</a>
+                <a className={commonStyles.preview}>Sair do modo Preview</a>
               </Link>
             </aside>
           )}
@@ -101,7 +101,7 @@ const Home = ({ postsPagination, previewRef }: HomeProps) => {
   );
 };
 
-export const getStaticProps: GetStaticProps = async ({
+export const getStaticProps: GetStaticProps<HomeProps> = async ({
   preview = false,
   previewData,
 }) => {
@@ -115,7 +115,8 @@ export const getStaticProps: GetStaticProps = async ({
         'publication.subtitle',
         'publication.author',
       ],
-      pageSize: 5,
+      orderings: '[my.publication.first_publication_date]',
+      pageSize: 3,
       ref: previewData?.ref ?? null,
     }
   );
@@ -138,7 +139,7 @@ export const getStaticProps: GetStaticProps = async ({
         results,
         next_page: response.next_page,
       },
-      previewRef: preview,
+      preview,
     },
     revalidate: 60 * 30, // 30 minutes
   };

@@ -6,8 +6,8 @@ export const repoName = 'news-challenge';
 // -- Link resolution rules
 // Manages the url links to internal Prismic documents
 export const linkResolver = (doc: Document): string => {
-  if (doc.type === 'post') {
-    return `/blog/${doc.uid}`;
+  if (doc.type === 'posts') {
+    return `/post/${doc.uid}`;
   }
   return '/';
 };

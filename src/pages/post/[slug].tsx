@@ -10,6 +10,7 @@ import { formatDate } from '../../helpers/date';
 import Header from '../../components/Header';
 
 import styles from './post.module.scss';
+import commonStyles from '../../styles/common.module.scss';
 
 interface Post {
   first_publication_date: string | null;
@@ -37,7 +38,6 @@ interface PostProps {
 
 const Post = ({ post, prevPost, nextPost, preview }: PostProps) => {
   const router = useRouter();
-  console.log(preview);
 
   if (router.isFallback) return <p>Carregando...</p>;
 
@@ -53,13 +53,13 @@ const Post = ({ post, prevPost, nextPost, preview }: PostProps) => {
         <title>{post.data?.title}</title>
       </Head>
       <Header />
-      <main className={styles.container}>
+      <main className={commonStyles.container}>
         <div className={styles.banner}>
           <img src={post.data.banner.url} alt="teste" width="100%" />
         </div>
         <div className={styles.body}>
           <h1>{post.data.title}</h1>
-          <article className={styles.infos}>
+          <article className={commonStyles.infos}>
             <div>
               <FiCalendar />
               <time>{formatDate(post.first_publication_date)}</time>
@@ -86,14 +86,14 @@ const Post = ({ post, prevPost, nextPost, preview }: PostProps) => {
               </section>
             ))}
           </div>
+          {preview && (
+            <aside>
+              <Link href="/api/exit-preview">
+                <a className={commonStyles.preview}>Sair do modo Preview</a>
+              </Link>
+            </aside>
+          )}
         </div>
-        {preview && (
-          <aside>
-            <Link href="/api/exit-preview">
-              <a className={commonStyles.preview}>Sair do modo Preview</a>
-            </Link>
-          </aside>
-        )}
       </main>
     </>
   );
@@ -115,28 +115,29 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async ({
+  params,
+  preview = false,
+  previewData,
+}) => {
   const { slug } = params;
   const prismic = getPrismicClient();
-  const response = await prismic.getByUID('publication', String(slug), {});
+  const response = await prismic.getByUID('publication', String(slug), {
+    ref: previewData?.ref ?? null,
+  });
 
   const post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
     data: {
       ...response.data,
-      //   title: response.data.title,
-      //   banner: {
-      //     url: response.data.banner.url,
-      //   },
-      //   author: response.data.author,
-      //   content: response.data.content,
     },
   };
 
   return {
     props: {
       post,
+      preview,
     },
     revalidate: 60 * 30, // 30 minutes
   };

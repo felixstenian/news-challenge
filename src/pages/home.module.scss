@@ -7,19 +7,13 @@
   align-items: center;
 }
 
-.container {
-  max-width: 1120px;
-  margin: 0 auto;
-}
-
 .postList {
   max-width: 720px;
   margin: 2rem auto;
 
-  a {
-    display: block;
-
-    & + a {
+  aside {
+    cursor: pointer;
+    & + aside {
       padding-top: 2rem;
       border-top: 1px solid #323238;
     }
@@ -57,28 +51,6 @@
 
     &:hover {
       text-decoration: underline;
-    }
-  }
-}
-
-.infos {
-  display: flex;
-  margin-top: 1rem;
-  padding-bottom: 1rem;
-
-  div {
-    margin-right: 1rem;
-    display: flex;
-    align-items: center;
-
-    time {
-      font-size: 14px;
-      align-items: center;
-      color: var(--info);
-    }
-
-    svg {
-      margin-right: 0.5rem;
     }
   }
 }
