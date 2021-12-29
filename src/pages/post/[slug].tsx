@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Prismic from '@prismicio/client';
 import { RichText } from 'prismic-dom';
 import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
+import Link from 'next/link';
 import { getPrismicClient } from '../../services/prismic';
 import { formatDate } from '../../helpers/date';
 import Header from '../../components/Header';
@@ -29,10 +30,14 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  prevPost: Post;
+  nextPost: Post;
+  preview: boolean;
 }
 
-const Post = ({ post }: PostProps) => {
+const Post = ({ post, prevPost, nextPost, preview }: PostProps) => {
   const router = useRouter();
+  console.log(preview);
 
   if (router.isFallback) return <p>Carregando...</p>;
 
@@ -82,6 +87,13 @@ const Post = ({ post }: PostProps) => {
             ))}
           </div>
         </div>
+        {preview && (
+          <aside>
+            <Link href="/api/exit-preview">
+              <a className={commonStyles.preview}>Sair do modo Preview</a>
+            </Link>
+          </aside>
+        )}
       </main>
     </>
   );
